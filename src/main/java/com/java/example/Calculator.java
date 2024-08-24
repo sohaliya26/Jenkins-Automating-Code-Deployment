@@ -19,10 +19,10 @@ public class Calculator {
 
     // Method to divide one integer by another
     // Returns an integer result, assumes that b is not zero
-    public int divide(int a, int b) {
-        if (b == 0) {
-            throw new IllegalArgumentException("Division by zero is not allowed.");
-        }
-        return a / b;
-    }
+    // public int divide(int a, int b) {
+    //     if (b == 0) {
+    //         throw new IllegalArgumentException("Division by zero is not allowed.");
+    //     }
+    //     return a / b;
+    // }
 }
