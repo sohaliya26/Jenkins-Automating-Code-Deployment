@@ -2,7 +2,7 @@ package com.java.example;
 
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.fail;
 
 public class CalculatorTest {
 
@@ -31,19 +31,22 @@ public class CalculatorTest {
     }
 
     // Test for division
-    // @Test
-    // public void testDivide() {
-    //     Calculator calculator = new Calculator();
-    //     int result = calculator.divide(6, 3);
-    //     assertEquals(2, result);
-    // }
+    @Test
+    public void testDivide() {
+        Calculator calculator = new Calculator();
+        double result = calculator.divide(6, 3);
+        assertEquals(2.0, result, 0.001); // Use delta for floating point comparisons
+    }
 
-    // // Test for division by zero
-    // @Test
-    // public void testDivideByZero() {
-    //     Calculator calculator = new Calculator();
-    //     assertThrows(IllegalArgumentException.class, () -> {
-    //         calculator.divide(6, 0);
-    //     });
-    // }
+    // Test for division by zero
+    @Test
+    public void testDivideByZero() {
+        Calculator calculator = new Calculator();
+        try {
+            calculator.divide(6, 0);
+            fail("Expected IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected exception
+        }
+    }
 }
