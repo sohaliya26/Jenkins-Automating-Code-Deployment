@@ -19,7 +19,6 @@ pipeline {
                 sh 'mvn clean package' // Build the application
             }
         }
-
         stage('Deploy to Tomcat') {
             steps {
                 deploy adapters: [tomcat8(
