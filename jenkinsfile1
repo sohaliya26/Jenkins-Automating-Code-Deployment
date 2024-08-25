@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+    tools {
+        maven 'Maven3' // Ensure this is configured in Jenkins
+    }
+    environment {
+        TOMCAT_URL = 'http://18.188.4.77:8080/manager/text/'
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'master', url: 'https://github.com/sohaliya26/Jenkins-Automating-Code-Deployment.git'
+            }
+        }
+
+        stage('Build with Maven') {
+            steps {
+                sh 'mvn clean package' // Build the application
+            }
+        }
+
+        stage('Deploy to Tomcat') {
+            steps {
+                deploy adapters: [tomcat8(
+                    credentialsId: 'tomcatCred',
+                    url: "${TOMCAT_URL}"
+                )], war: '**/*.war'
+            }
+        }
+    }
+}

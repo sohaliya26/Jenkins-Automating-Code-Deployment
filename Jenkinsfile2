@@ -17,26 +17,30 @@ pipeline {
             }
         }
 
-        stage('Build with Maven') {
-            steps {
-                sh 'mvn clean package'
-            }
-        }
-
         stage('Run Test Case') {
             steps {
                 script {
                     try {
-                        sh 'mvn test'
+                        sh 'mvn test -Dsurefire.printSummary=true' // Run tests with detailed summary
                     } catch (Exception e) {
-                        // Notify failure
+                        // Capture detailed test results and send notification
                         def buildNumber = env.BUILD_NUMBER
                         def jobName = env.JOB_NAME
-                        def message = "Build #${buildNumber} for ${jobName} failed: Test cases failed."
+                        def testReport = readFile('target/surefire-reports/TEST-com.java.example.CalculatorTest.xml') // Path to test report
+                        def message = "Build #${buildNumber} for ${jobName} failed: Test cases failed.Test Report: ${testReport}"
                         sh "aws sns publish --topic-arn ${env.SNS_TOPIC_ARN} --message '${message}' --region ${env.AWS_REGION}"
                         throw e
                     }
                 }
+            }
+        }
+
+        stage('Build with Maven') {
+            when {
+                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
+            }
+            steps {
+                sh 'mvn clean package' // Build the application
             }
         }
 
