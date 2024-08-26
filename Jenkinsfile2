@@ -1,34 +1,38 @@
 pipeline {
-    agent any
+    agent none // Define agents per stage
     tools {
         maven 'Maven3' // Ensure this is configured in Jenkins
     }
     environment {
         AWS_CREDENTIALS = credentials('aws-creds')
-        TOMCAT_URL = 'http://18.188.4.77:8080/manager/text/'
+        TOMCAT_URL = 'http://18.191.206.225:8080/manager/text/'
         SNS_TOPIC_ARN = 'arn:aws:sns:us-east-2:173646783052:Jenkins-CICD-SNS'
         AWS_REGION = 'us-east-2'
     }
 
     stages {
         stage('Checkout Code') {
+            agent { label 'slave_1_label' }
             steps {
                 git branch: 'master', url: 'https://github.com/sohaliya26/Jenkins-Automating-Code-Deployment.git'
             }
         }
 
         stage('Run Test Case') {
+            agent { label 'slave_1_label' }
             steps {
                 script {
                     try {
                         sh 'mvn test -Dsurefire.printSummary=true' // Run tests with detailed summary
                     } catch (Exception e) {
-                        // Capture detailed test results and send notification
                         def buildNumber = env.BUILD_NUMBER
                         def jobName = env.JOB_NAME
-                        def testReport = readFile('target/surefire-reports/TEST-com.java.example.CalculatorTest.xml') // Path to test report
-                        def message = "Build #${buildNumber} for ${jobName} failed: Test cases failed.Test Report: ${testReport}"
-                        sh "aws sns publish --topic-arn ${env.SNS_TOPIC_ARN} --message '${message}' --region ${env.AWS_REGION}"
+                        def testReport = readFile('target/surefire-reports/TEST-com.java.example.CalculatorTest.xml')
+                        def message = "Build #${buildNumber} for ${jobName} failed: Test cases failed. Test Report: ${testReport}"
+                        // Publish SNS notification on master
+                        node('master') {
+                            sh "aws sns publish --topic-arn ${env.SNS_TOPIC_ARN} --message '${message}' --region ${env.AWS_REGION}"
+                        }
                         throw e
                     }
                 }
@@ -36,6 +40,7 @@ pipeline {
         }
 
         stage('Build with Maven') {
+            agent { label 'slave_1_label' }
             when {
                 expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
             }
@@ -45,6 +50,7 @@ pipeline {
         }
 
         stage('Deploy to Tomcat') {
+            agent { label 'slave_1_label' }
             when {
                 expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
             }
@@ -59,19 +65,25 @@ pipeline {
 
     post {
         success {
-            script {
-                def buildNumber = env.BUILD_NUMBER
-                def jobName = env.JOB_NAME
-                def message = "Build #${buildNumber} for ${jobName} succeeded."
-                sh "aws sns publish --topic-arn ${env.SNS_TOPIC_ARN} --message '${message}' --region ${env.AWS_REGION}"
+            // Send SNS notification on master
+            node('master') {
+                script {
+                    def buildNumber = env.BUILD_NUMBER
+                    def jobName = env.JOB_NAME
+                    def message = "Build #${buildNumber} for ${jobName} succeeded."
+                    sh "aws sns publish --topic-arn ${env.SNS_TOPIC_ARN} --message '${message}' --region ${env.AWS_REGION}"
+                }
             }
         }
         failure {
-            script {
-                def buildNumber = env.BUILD_NUMBER
-                def jobName = env.JOB_NAME
-                def message = "Build #${buildNumber} for ${jobName} failed. Please check the logs for details."
-                sh "aws sns publish --topic-arn ${env.SNS_TOPIC_ARN} --message '${message}' --region ${env.AWS_REGION}"
+            // Send SNS notification on master
+            node('master') {
+                script {
+                    def buildNumber = env.BUILD_NUMBER
+                    def jobName = env.JOB_NAME
+                    def message = "Build #${buildNumber} for ${jobName} failed. Please check the logs for details."
+                    sh "aws sns publish --topic-arn ${env.SNS_TOPIC_ARN} --message '${message}' --region ${env.AWS_REGION}"
+                }
             }
         }
     }
