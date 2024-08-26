@@ -1,5 +1,5 @@
 pipeline {
-    agent { lable 'slave_1_lable' }
+    agent { label 'slave_1_lable' }
     tools {
         maven 'Maven3' // Ensure this is configured in Jenkins
     }
