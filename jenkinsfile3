@@ -12,14 +12,14 @@ pipeline {
 
     stages {
         stage('Checkout Code') {
-            agent { label 'slave_1_label' }
+            agent { label 'slave_1_label' } //change it with your lable in slave-1 jenkins
             steps {
                 git branch: 'master', url: 'https://github.com/sohaliya26/Jenkins-Automating-Code-Deployment.git'
             }
         }
 
         stage('Run Test Case') {
-            agent { label 'slave_1_label' }
+            agent { label 'slave_1_label' } //change it with your lable in master jenkins
             steps {
                 script {
                     try {
@@ -30,7 +30,7 @@ pipeline {
                         def testReport = readFile('target/surefire-reports/TEST-com.java.example.CalculatorTest.xml')
                         def message = "Build #${buildNumber} for ${jobName} failed: Test cases failed. Test Report: ${testReport}"
                         // Publish SNS notification on master
-                        node('master') {
+                        node('master') { //change it with your lable in master jenkins
                             sh "aws sns publish --topic-arn ${env.SNS_TOPIC_ARN} --message '${message}' --region ${env.AWS_REGION}"
                         }
                         throw e
@@ -40,7 +40,7 @@ pipeline {
         }
 
         stage('Build with Maven') {
-            agent { label 'slave_1_label' }
+            agent { label 'slave_1_label' }  //change it with your lable in slave-1 jenkins
             when {
                 expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
             }
@@ -50,7 +50,7 @@ pipeline {
         }
 
         stage('Deploy to Tomcat') {
-            agent { label 'slave_1_label' }
+            agent { label 'slave_1_label' } //change it with your lable in slave-1 jenkins
             when {
                 expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
             }
@@ -66,7 +66,7 @@ pipeline {
     post {
         success {
             // Send SNS notification on master
-            node('master') {
+            node('master') { // change it with your lable in master jenkins
                 script {
                     def buildNumber = env.BUILD_NUMBER
                     def jobName = env.JOB_NAME
@@ -77,7 +77,7 @@ pipeline {
         }
         failure {
             // Send SNS notification on master
-            node('master') {
+            node('master') { //change it with your lable in master jenkins
                 script {
                     def buildNumber = env.BUILD_NUMBER
                     def jobName = env.JOB_NAME
