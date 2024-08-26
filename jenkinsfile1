@@ -4,7 +4,7 @@ pipeline {
         maven 'Maven3' // Ensure this is configured in Jenkins
     }
     environment {
-        TOMCAT_URL = 'http://18.188.4.77:8080/manager/text/'
+        TOMCAT_URL = 'http://18.191.206.225:8080/manager/text/'
     }
 
     stages {
