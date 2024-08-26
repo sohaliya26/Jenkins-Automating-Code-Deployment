@@ -11,7 +11,7 @@ public class CalculatorTest {
     public void testAdd() {
         Calculator calculator = new Calculator();
         int result = calculator.add(2, 3);
-        assertEquals(5, result);
+        assertEquals(4, result); //innsted of 5 we put 4 for fail test case
     }
 
     // Test for subtraction
