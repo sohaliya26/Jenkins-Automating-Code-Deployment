@@ -5,7 +5,7 @@ pipeline {
     }
     environment {
         AWS_CREDENTIALS = credentials('aws-creds')
-        TOMCAT_URL = 'http://18.191.206.225:8080/manager/text/'
+        TOMCAT_URL = 'http://18.222.208.173:8080/manager/text/'
         SNS_TOPIC_ARN = 'arn:aws:sns:us-east-2:173646783052:Jenkins-CICD-SNS'
         AWS_REGION = 'us-east-2'
     }
