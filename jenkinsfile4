@@ -74,8 +74,12 @@ pipeline {
                 expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
             }
             steps {
-                script {
-                    sh "docker run -d -p 8081:8080 --name tomcat_deploy ${env.DOCKER_IMAGE}" 
+                 script {
+                    // Remove the existing container if it exists
+                    sh "docker rm -f tomcat_deploy || true"
+
+                    // Run a new container
+                    sh "docker run -d -p 8081:8080 --name tomcat_deploy ${env.DOCKER_IMAGE}"
                 }
             }
         }
