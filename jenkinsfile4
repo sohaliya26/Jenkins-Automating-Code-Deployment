@@ -7,7 +7,7 @@ pipeline {
         AWS_CREDENTIALS = credentials('aws-creds')
         SNS_TOPIC_ARN = 'arn:aws:sns:us-east-2:173646783052:Jenkins-CICD-SNS'
         AWS_REGION = 'us-east-2'
-        DOCKER_IMAGE = "sohaliya/java-exmaple:latest" // Replace with your Docker Hub username and image name ${env.BUILD_NUMBER}
+        DOCKER_IMAGE = "sohaliya/java-exmaple:latest" // Replace with your Docker Hub username and image name also you can tag with build number replace with ${env.BUILD_NUMBER}
     }
 
     stages {
